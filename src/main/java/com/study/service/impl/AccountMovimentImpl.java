@@ -1,31 +1,49 @@
 package com.study.service.impl;
 
-import com.study.exception.AccountNotFoundException;
-import com.study.exception.BalanceOutOfLimitException;
-import com.study.model.AccountBalance;
-import com.study.model.Transaction;
-import com.study.service.AccountMoviment;
+import java.util.Optional;
 
-public class AccountMovimentImpl implements AccountMoviment {
+import com.study.exception.BalanceOutOfLimitException;
+import com.study.exception.CustomerNotFoundException;
+import com.study.model.CustomerBalance;
+import com.study.model.Transaction;
+import com.study.repository.CustomerRepository;
+import com.study.repository.entity.Customer;
+import com.study.service.CustomerMoviment;
+
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+@ApplicationScoped
+public class AccountMovimentImpl implements CustomerMoviment {
+	
+	@Inject
+	private CustomerRepository customerRepository;
 
 	@Override
-	public AccountBalance credit(Long accountId, Transaction transaction) {
-		System.out.println("Credit - " + transaction.getValor() +  " to " + accountId);
+	public CustomerBalance credit(Long customerId, Transaction transaction) {
+		Log.infof("Credit Operation - value %s to %s" , transaction.getValor(), customerId);
+		Optional<Customer> optCustomer = customerRepository.findByIdOptional(customerId);
 		
-		if(accountId.equals(4l)) {
-			throw new AccountNotFoundException("Can not found the account");
+		if(optCustomer.isEmpty()) {
+			throw new CustomerNotFoundException("Can not found the account");
 		}
 		
-		return new AccountBalance(1000, transaction.getValor(), null);
+		Customer customer = optCustomer.get();
+		customer.setBalance(customer.getBalance() + transaction.getValor());
+		customerRepository.persist(customer);
+		//TODO inserir registro da tabela de historico
+		
+		return new CustomerBalance(customer.getLimit(), customer.getBalance());
 	}
 
 	@Override
-	public AccountBalance debit(Long accountId, Transaction transaction) {
+	public CustomerBalance debit(Long accountId, Transaction transaction) {
 		System.out.println("Debit - " + transaction.getValor() +  " from " + accountId);
 		if(accountId.equals(4l)) {
 			throw new BalanceOutOfLimitException("Balance can not be less than limit");
 		}
-		return new AccountBalance(1000, 0, null);
+		return new CustomerBalance(1000, 0, null);
 	}
 
 }

@@ -1,9 +1,9 @@
 package com.study.service.impl;
 
 import com.study.model.Statement;
-import com.study.service.AccountStatement;
+import com.study.service.CustomerStatement;
 
-public class AccountStatementImpl implements AccountStatement {
+public class AccountStatementImpl implements CustomerStatement {
 
 	@Override
 	public Statement statement(Long accountId) {

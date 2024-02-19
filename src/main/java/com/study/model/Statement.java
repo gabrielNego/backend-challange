@@ -12,6 +12,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class Statement {
-	private AccountBalance saldo;
+	private CustomerBalance saldo;
 	private List<Transaction> ultimas_transacoes;
 }

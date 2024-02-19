@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class TransactionHistory {
+	private Long customerId;
 	private String type;
 	private Long value;
 	private String description;

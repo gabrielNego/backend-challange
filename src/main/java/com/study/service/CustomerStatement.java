@@ -4,5 +4,5 @@ import com.study.model.Statement;
 
 public interface CustomerStatement {
 	
-	public Statement statement(Long accountId);
+	public Statement statement(Long customerId);
 }

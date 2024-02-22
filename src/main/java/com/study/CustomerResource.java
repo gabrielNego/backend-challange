@@ -9,6 +9,7 @@ import com.study.service.CustomerMoviment;
 import com.study.service.CustomerStatement;
 
 import io.quarkus.logging.Log;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/clientes")
+@RunOnVirtualThread
 public class CustomerResource {
 	
 	@Inject

@@ -51,7 +51,7 @@ public class AccountStatementImpl implements CustomerStatement {
 		return Transaction
 				.builder()
 				.valor(transactionHistory.getValue())
-				.tipo(OperationTypeEnum.valueOf(transactionHistory.getType()))
+				.tipo(OperationTypeEnum.getEnumFromType(transactionHistory.getType()))
 				.descricao(transactionHistory.getDescription())
 				.realizada_em(transactionHistory.getDate())
 				.build();

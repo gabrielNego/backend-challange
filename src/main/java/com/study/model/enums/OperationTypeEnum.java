@@ -15,4 +15,20 @@ public enum OperationTypeEnum {
 	OperationTypeEnum(String type) {
 		this.type = type;
 	}
+
+	public static OperationTypeEnum getEnumFromType(String type) {
+		for (var operationType : OperationTypeEnum.values()) {
+			if (operationType.getType().equals(type)) {
+				return operationType;
+			}
+		}
+
+		throw new IllegalArgumentException(String.format("No operation type found for type \"%s\"", type));
+	}
+	
+	@Override
+	public String toString() {
+		return this.type;
+	}
+
 }

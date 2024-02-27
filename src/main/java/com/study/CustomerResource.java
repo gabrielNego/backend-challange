@@ -23,10 +23,10 @@ import jakarta.ws.rs.core.MediaType;
 public class CustomerResource {
 	
 	@Inject
-	private CustomerMoviment accountMoviment;
+	CustomerMoviment accountMoviment;
 	
 	@Inject
-	private CustomerStatement customerStatement;
+	CustomerStatement customerStatement;
 	
 	@POST
 	@Path("/{customerId}/transacoes")

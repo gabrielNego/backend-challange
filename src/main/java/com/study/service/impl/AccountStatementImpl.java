@@ -24,10 +24,10 @@ import jakarta.inject.Inject;
 public class AccountStatementImpl implements CustomerStatement {
 	
 	@Inject
-	private CustomerRepository customerRepository;
+	CustomerRepository customerRepository;
 
 	@Inject
-	private TransactionHistoryRepository transactionHistoryRepository;
+	TransactionHistoryRepository transactionHistoryRepository;
 
 	@Override
 	public Statement statement(Long customerId) {

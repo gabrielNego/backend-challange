@@ -20,10 +20,10 @@ import jakarta.inject.Inject;
 public class AccountMovimentImpl implements CustomerMoviment {
 	
 	@Inject
-	private CustomerRepository customerRepository;
+	CustomerRepository customerRepository;
 
 	@Inject
-	private TransactionHistoryRepository transactionHistoryRepository;
+	TransactionHistoryRepository transactionHistoryRepository;
 
 	@Override
 	public CustomerBalance credit(Long customerId, Transaction transaction) {

@@ -47,14 +47,13 @@ public class AccountStatementImpl implements CustomerStatement {
 		return customerRepository.findByIdOptional(customerId).orElseThrow(() -> new CustomerNotFoundException("Can not found the account"));
 	}
 	
-	private Function<TransactionHistory, Transaction> convertTransactionHistoryToTransaction = transactionHistory -> {
-		return Transaction
+	private Function<TransactionHistory, Transaction> convertTransactionHistoryToTransaction = transactionHistory ->
+		Transaction
 				.builder()
 				.valor(transactionHistory.getValue())
 				.tipo(OperationTypeEnum.getEnumFromType(transactionHistory.getType()))
 				.descricao(transactionHistory.getDescription())
 				.realizada_em(transactionHistory.getDate())
 				.build();
-	};
 
 }

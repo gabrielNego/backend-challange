@@ -15,13 +15,15 @@ import lombok.Setter;
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CustomerBalance {
+	
 	private long limite;
-	private long saldo;
+	private long total;
 	private LocalDateTime data_extrato;
 
-	public CustomerBalance(long limite, long saldo) {
+	public CustomerBalance(long limite, long total) {
 		super();
 		this.limite = limite;
-		this.saldo = saldo;
+		this.total = total;
 	}
+
 }

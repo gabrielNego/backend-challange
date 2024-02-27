@@ -15,6 +15,7 @@ import com.study.repository.entity.TransactionHistory;
 import com.study.service.CustomerStatement;
 
 import io.quarkus.logging.Log;
+import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,14 +32,15 @@ public class AccountStatementImpl implements CustomerStatement {
 
 	@Override
 	public Statement statement(Long customerId) {
-		Log.infof("Get statement from custeomer [%s]", customerId);
+		Log.infof("Get statement from customer [%s]", customerId);
 		Customer customer = this.findCustomer(customerId);
 		return new Statement(new CustomerBalance(customer.getLimit(), customer.getBalance(), LocalDateTime.now()),
-				transactionHistoryRepository
-				.list("customerId", Sort.by("date", Direction.Descending), customerId)
-				.stream()
-				.map(convertTransactionHistoryToTransaction)
-				.toList());
+				transactionHistoryRepository.find("customerId", Sort.by("date", Direction.Descending), customerId)
+						.page(Page.of(0,10))
+						.list()
+						.stream()
+						.map(convertTransactionHistoryToTransaction)
+						.toList());
 	}
 	
 	private Customer findCustomer(Long customerId) {

@@ -8,10 +8,10 @@ import com.study.model.Transaction;
 import com.study.service.CustomerMoviment;
 import com.study.service.CustomerStatement;
 
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.logging.Log;
-import io.smallrye.common.annotation.RunOnVirtualThread;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -21,7 +21,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/clientes")
-@RunOnVirtualThread
 public class CustomerResource {
 	
 	@Inject
@@ -33,8 +32,8 @@ public class CustomerResource {
 	@POST
 	@Path("/{customerId}/transacoes")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
-	public CustomerBalance customerDebitOrCreditOperation(@PathParam("customerId")Long customerId, @Valid Transaction transaction) throws JsonProcessingException {
+	@WithTransaction
+	public Uni<CustomerBalance> customerDebitOrCreditOperation(@PathParam("customerId")Long customerId, @Valid Transaction transaction) throws JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Log.debugf("Customer: %s \n %s", transaction, objectMapper.writeValueAsString(transaction));
 		return accountMoviment.transaction(customerId, transaction);

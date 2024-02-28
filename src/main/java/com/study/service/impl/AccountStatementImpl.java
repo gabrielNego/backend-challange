@@ -33,16 +33,18 @@ public class AccountStatementImpl implements CustomerStatement {
 	public Statement statement(Long customerId) {
 		Log.infof("Get statement from custeomer [%s]", customerId);
 		Customer customer = this.findCustomer(customerId);
-		return new Statement(new CustomerBalance(customer.getLimit(), customer.getBalance(), LocalDateTime.now()),
-				transactionHistoryRepository
-				.list("customerId", Sort.by("date", Direction.Descending), customerId)
-				.stream()
-				.map(convertTransactionHistoryToTransaction)
-				.toList());
+//		return new Statement(new CustomerBalance(customer.getLimit(), customer.getBalance(), LocalDateTime.now()),
+//				transactionHistoryRepository
+//				.list("customerId", Sort.by("date", Direction.Descending), customerId)
+//				.stream()
+//				.map(convertTransactionHistoryToTransaction)
+//				.toList());
+		return null;
 	}
 	
 	private Customer findCustomer(Long customerId) {
-		return customerRepository.findByIdOptional(customerId).orElseThrow(() -> new CustomerNotFoundException("Can not found the account"));
+//		return customerRepository.findByIdOptional(customerId).orElseThrow(() -> new CustomerNotFoundException("Can not found the account"));
+		return null;
 	}
 	
 	private Function<TransactionHistory, Transaction> convertTransactionHistoryToTransaction = transactionHistory -> {

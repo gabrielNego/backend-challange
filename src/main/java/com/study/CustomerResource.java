@@ -8,9 +8,11 @@ import com.study.model.Transaction;
 import com.study.service.CustomerMoviment;
 import com.study.service.CustomerStatement;
 
+import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.logging.Log;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -31,8 +33,8 @@ public class CustomerResource {
 	@POST
 	@Path("/{customerId}/transacoes")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
-	public CustomerBalance customerDebitOrCreditOperation(@PathParam("customerId")Long customerId, @Valid Transaction transaction) throws JsonProcessingException {
+	@WithTransaction
+	public Uni<CustomerBalance> customerDebitOrCreditOperation(@PathParam("customerId")Long customerId, @Valid Transaction transaction) throws JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Log.debugf("Customer: %s \n %s", transaction, objectMapper.writeValueAsString(transaction));
 		return accountMoviment.transaction(customerId, transaction);
@@ -41,7 +43,8 @@ public class CustomerResource {
 	@GET
 	@Path("/{customerId}/extrato")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Statement accountStatement(@PathParam("customerId") Long customerId) {
+	@WithTransaction
+	public Uni<Statement> accountStatement(@PathParam("customerId") Long customerId) {
 		return customerStatement.statement(customerId);
 	}
 

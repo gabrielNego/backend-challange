@@ -1,6 +1,6 @@
 package com.study.service.impl;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.function.Function;
 
 import com.study.exception.CustomerNotFoundException;
@@ -18,6 +18,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -31,20 +32,35 @@ public class AccountStatementImpl implements CustomerStatement {
 	TransactionHistoryRepository transactionHistoryRepository;
 
 	@Override
-	public Statement statement(Long customerId) {
+	public Uni<Statement> statement(Long customerId) {
 		Log.infof("Get statement from customer [%s]", customerId);
-		Customer customer = this.findCustomer(customerId);
-		return new Statement(new CustomerBalance(customer.getLimit(), customer.getBalance(), LocalDateTime.now()),
-				transactionHistoryRepository.find("customerId", Sort.by("date", Direction.Descending), customerId)
-						.page(Page.of(0,10))
-						.list()
+		Uni<Customer> uniCustomer = findCustomer(customerId);
+		Uni<List<TransactionHistory>> uniTransactionHistory = transactionHistoryRepository
+				.find("customerId", Sort.by("date", Direction.Descending), customerId)
+				.page(Page.of(0, 10))
+				.list();
+		return Uni
+			.combine()
+			.all()
+			.unis(uniCustomer, uniTransactionHistory)
+			.asTuple()
+			.onItem()
+			.ifNull()
+			.failWith(new CustomerNotFoundException("Can not found the account"))
+			.map(tuple -> {
+				Customer customer = tuple.getItem1();
+				List<TransactionHistory> transactionHistories = tuple.getItem2();
+				return new Statement(
+						new CustomerBalance(customer.getLimit(), customer.getBalance()),
+						transactionHistories
 						.stream()
 						.map(convertTransactionHistoryToTransaction)
 						.toList());
+			});
 	}
 	
-	private Customer findCustomer(Long customerId) {
-		return customerRepository.findByIdOptional(customerId).orElseThrow(() -> new CustomerNotFoundException("Can not found the account"));
+	private Uni<Customer> findCustomer(Long customerId) {
+		return customerRepository.findById(customerId);
 	}
 	
 	private Function<TransactionHistory, Transaction> convertTransactionHistoryToTransaction = transactionHistory ->

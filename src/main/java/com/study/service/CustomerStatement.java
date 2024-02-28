@@ -2,7 +2,9 @@ package com.study.service;
 
 import com.study.model.Statement;
 
+import io.smallrye.mutiny.Uni;
+
 public interface CustomerStatement {
 	
-	public Statement statement(Long customerId);
+	public Uni<Statement> statement(Long customerId);
 }

@@ -14,6 +14,7 @@ import com.study.repository.entity.Customer;
 import com.study.repository.entity.TransactionHistory;
 import com.study.service.CustomerStatement;
 
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.logging.Log;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
@@ -32,31 +33,21 @@ public class AccountStatementImpl implements CustomerStatement {
 	TransactionHistoryRepository transactionHistoryRepository;
 
 	@Override
+	@WithTransaction
 	public Uni<Statement> statement(Long customerId) {
 		Log.infof("Get statement from customer [%s]", customerId);
-		Uni<Customer> uniCustomer = findCustomer(customerId);
-		Uni<List<TransactionHistory>> uniTransactionHistory = transactionHistoryRepository
-				.find("customerId", Sort.by("date", Direction.Descending), customerId)
-				.page(Page.of(0, 10))
-				.list();
-		return Uni
-			.combine()
-			.all()
-			.unis(uniCustomer, uniTransactionHistory)
-			.asTuple()
-			.onItem()
-			.ifNull()
-			.failWith(new CustomerNotFoundException("Can not found the account"))
-			.map(tuple -> {
-				Customer customer = tuple.getItem1();
-				List<TransactionHistory> transactionHistories = tuple.getItem2();
-				return new Statement(
-						new CustomerBalance(customer.getLimit(), customer.getBalance()),
-						transactionHistories
-						.stream()
-						.map(convertTransactionHistoryToTransaction)
-						.toList());
-			});
+		var statement = new Statement();
+
+		return findCustomer(customerId)
+				.onItem()
+				.invoke(c -> statement.setSaldo(new CustomerBalance(c.getLimit(), c.getBalance())))
+				.flatMap(c -> transactionHistoryRepository
+					.find("customerId", Sort.by("date", Direction.Descending), customerId)
+					.page(Page.of(0, 10))
+					.list())
+				.map(list -> list.stream().map(convertTransactionHistoryToTransaction).toList())
+				.invoke(history -> statement.setUltimas_transacoes(history))
+				.replaceWith(statement);
 	}
 	
 	private Uni<Customer> findCustomer(Long customerId) {

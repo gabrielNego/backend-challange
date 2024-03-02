@@ -43,7 +43,6 @@ public class CustomerResource {
 	@GET
 	@Path("/{customerId}/extrato")
 	@Produces(MediaType.APPLICATION_JSON)
-	@WithTransaction
 	public Uni<Statement> accountStatement(@PathParam("customerId") Long customerId) {
 		return customerStatement.statement(customerId);
 	}
